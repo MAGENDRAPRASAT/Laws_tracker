@@ -60,7 +60,8 @@ def sample_api(name):
             try:
                 connection = sqlite3.connect(DATABASE, timeout=10)
                 
-                cursor = connection.execute("INSERT INTO languages (name) VALUES ('English'),('தமிழ்'),('हिन्दी')")
+                # cursor = connection.execute("CREATE TABLE IF NOT EXISTS category (id INTEGER PRIMARY KEY, name varchar(255));")
+                cursor = connection.execute("INSERT INTO category (name) VALUES ('laws'),('rights')")
                 connection.commit()
 
                 results = cursor.fetchall()
@@ -82,12 +83,12 @@ def sample_api(name):
                 if connection:
                     connection.close()
     
-@app.route("/api/languages", methods=["GET", "POST", "PUT", "DELETE"])
-def languages_api():
+@app.route("/api/category", methods=["GET", "POST", "PUT", "DELETE"])
+def category_api():
     if request.method == "GET":
         try:
             connection = sqlite3.connect(DATABASE, timeout=10)
-            cursor = connection.execute("SELECT name FROM languages")
+            cursor = connection.execute("SELECT name FROM category")
             results = [row[0] for row in cursor.fetchall()] 
             return {
                 "success": True,
@@ -107,9 +108,9 @@ def languages_api():
         try:
             connection = sqlite3.connect(DATABASE, timeout=10)
             if request.json["bulk_insert"]:
-                cursor = connection.executemany("INSERT INTO languages (name) VALUES (?)", [(name,) for name in request.json["names"]])
+                cursor = connection.executemany("INSERT INTO category (name) VALUES (?)", [(name,) for name in request.json["names"]])
             else:
-                cursor = connection.execute("INSERT INTO languages (name) VALUES (?)", (request.json["name"],))
+                cursor = connection.execute("INSERT INTO category (name) VALUES (?)", (request.json["name"],))
             connection.commit()
             return {
                 "success": True
@@ -129,11 +130,11 @@ def languages_api():
             connection = sqlite3.connect(DATABASE, timeout=10)
             if request.json["bulk_update"]:
                 cursor = connection.executemany(
-                    "UPDATE languages SET name = ? WHERE id = ?",
+                    "UPDATE category SET name = ? WHERE id = ?",
                     [(item["name"], item["id"]) for item in request.json["data"] if "name" in item and "id" in item]
                 )
             else:
-                cursor = connection.execute("UPDATE languages SET name = ? WHERE id = ?", (request.json["name"], request.json["id"]))
+                cursor = connection.execute("UPDATE category SET name = ? WHERE id = ?", (request.json["name"], request.json["id"]))
             
             connection.commit()
             return {
@@ -153,9 +154,9 @@ def languages_api():
         try:
             connection = sqlite3.connect(DATABASE, timeout=10)
             if request.json["bulk_delete"]:
-                cursor = connection.executemany("DELETE FROM languages WHERE id = ?", [(id,) for id in request.json["ids"]])
+                cursor = connection.executemany("DELETE FROM category WHERE id = ?", [(id,) for id in request.json["ids"]])
             else:
-                cursor = connection.execute("DELETE FROM languages WHERE id = ?", (request.json["id"],))
+                cursor = connection.execute("DELETE FROM category WHERE id = ?", (request.json["id"],))
             connection.commit()
             return {
                 "success": True
