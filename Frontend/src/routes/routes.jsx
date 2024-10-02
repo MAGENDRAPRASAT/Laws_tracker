@@ -3,6 +3,7 @@ import {
   } from "react-router-dom";
 import Login from "../law_admin/pages/auth/login";
 import Home from "../law_app/Pages/Home/home";
+import Admin from "../law_admin/pages/app_container/admin";
 
 export const router = createBrowserRouter([
     {
@@ -18,7 +19,15 @@ export const router = createBrowserRouter([
 
     },
     {
+        path: "/admin",
+        element: <Admin />,
+    },
+    {
         path: "/login",
-        element: <Login/>,
+        element: <Login />,
+    },
+    {
+        path: "*",
+        element: <Home/>
     }
   ]);

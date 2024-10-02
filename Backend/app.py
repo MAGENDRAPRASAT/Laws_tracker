@@ -61,7 +61,8 @@ def sample_api(name):
                 connection = sqlite3.connect(DATABASE, timeout=10)
                 
                 # cursor = connection.execute("CREATE TABLE IF NOT EXISTS category (id INTEGER PRIMARY KEY, name varchar(255));")
-                cursor = connection.execute("INSERT INTO category (name) VALUES ('laws'),('rights')")
+                cursor = connection.execute('''INSERT INTO users (username, password_hash) 
+                        VALUES ('admin', 'admin');''')
                 connection.commit()
 
                 results = cursor.fetchall()
@@ -82,6 +83,39 @@ def sample_api(name):
             finally:
                 if connection:
                     connection.close()
+
+@app.route("/api/login", methods=["POST"])
+def login_api():
+    if request.method == "POST":
+        try:
+            connection = sqlite3.connect(DATABASE, timeout=10)
+
+            username = request.json.get("username")
+            password = request.json.get("password")
+            cursor = connection.execute("SELECT * FROM users WHERE username = ? AND password_hash = ?", (username, password))
+            
+            results = cursor.fetchall()
+            if len(results) == 0:
+                return {
+                    "success": False,
+                    "error": "Invalid username or password",
+                    "user_logged_in": False
+                }
+                
+            return {
+                "success": True,
+                "user_logged_in": True
+            }
+            
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+        finally:
+            if connection:
+                connection.close()
     
 @app.route("/api/category", methods=["GET", "POST", "PUT", "DELETE"])
 def category_api():

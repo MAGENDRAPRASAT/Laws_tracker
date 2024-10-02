@@ -1,23 +1,68 @@
-import React, { useState } from 'react';
-import { Avatar, Button, TextField, Grid, Box, Typography, Container, CssBaseline, Link } from '@mui/material';
+import React, { useEffect, useRef, useState } from 'react';
+import { Avatar, Button, TextField, Grid, Box, Typography, Container, CssBaseline, Link, Alert, Snackbar } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const theme = createTheme();
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log('Email:', email);
-    console.log('Password:', password);
-    // Handle login logic here
+  const navigate = useNavigate();
+
+  const userNameRef = useRef('');
+  const passwordRef = useRef('');
+
+  const [open, setOpen] = React.useState(false);
+
+  const handleClose = (
+    event,
+    reason
+  ) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
   };
+
+
+  const handleSubmit = async(event) => {
+    event.preventDefault();
+    
+    const response = await axios.post('http://127.0.0.1:5000/api/login', {
+      username: userNameRef.current,
+      password: passwordRef.current
+    });
+    const data = response.data;
+    
+    if(data.success){
+      sessionStorage.setItem("user_logged_in", true);
+      navigate('/admin');
+    }else{
+      setOpen(true);
+    }
+
+  };
+
+  useEffect(() => {
+    const userIsLoggedIn = sessionStorage.getItem("user_logged_in") ?? false
+    if(userIsLoggedIn){
+      navigate('/admin');
+    }
+  }, [])
 
   return (
     <ThemeProvider theme={theme}>
+      <Snackbar
+        open={open}
+        bgcolor='lightblue'
+        autoHideDuration={3000}
+        onClose={handleClose}
+        message="Username or password is incorrect"
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      />
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
@@ -39,13 +84,12 @@ export default function Login() {
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
+              id="userName"
+              label="User"
+              name="userName"
+              autoComplete="userName"
               autoFocus
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => userNameRef.current = e.target.value}
             />
             <TextField
               margin="normal"
@@ -56,8 +100,7 @@ export default function Login() {
               type="password"
               id="password"
               autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => passwordRef.current = e.target.value}
             />
             <Button
               type="submit"
