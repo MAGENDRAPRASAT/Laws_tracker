@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import GoogleTranslate from '../../components/GoogleTranslate';
 
 const Home = () => {
 
-
   return (
 
     <>
-        <GoogleTranslate />
+        <GoogleTranslate  />
 
         <h1>Home</h1>
         <p>The check for the laws</p>
