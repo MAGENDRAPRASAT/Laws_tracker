@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import GoogleTranslate from '../../components/GoogleTranslate';
 
 const Home = () => {
- 
+
+  const [clickCount, setClickCount] = useState(0);
+
   const googleTranslateElementInit = () => {
-    
+
     if (window.google && window.google.translate) {
       const existingElement = document.getElementById('google_translate_element');
       if (existingElement && !existingElement.querySelector('.skiptranslate')) {
@@ -37,15 +39,20 @@ const Home = () => {
       const script = document.getElementById('google-translate-script');
       if (script) {
         document.body.removeChild(script);
-        delete window.googleTranslateElementInit; // Clean up global function
+        delete window.googleTranslateElementInit;
       }
     };
   }, []);
 
   return (
-    
+
     <>
-      <div onClick={() => console.log("km")}>
+      <div onClick={() => {
+        setClickCount(prev => prev + 1)
+        if (clickCount % 1 === 0 && clickCount !== 0) {
+          window.location.reload();
+        }
+      }}>
         <div id="google_translate_element"></div>
       </div>
       <h4>Start building your app. Happy Coding!</h4>
